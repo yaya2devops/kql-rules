@@ -1,4 +1,15 @@
-# Required KQL
+# Requirement
+| Rule in Kusto Query Language | Description |
+| :--- | :-----------: |
+| Inactive users in SharePoint Online | Required |
+| Only invited users should be automatically admitted | Required |
+| Block legacy authentication through Conditional Access | Required |
+| Secure Score for Identity: 5. Enable User Risk in Conditional Access policy | Required |
+| Enable Sign-in Risk in Conditional Access policy | Required |
+| Define and set Account Lockout policy on MFA | Required |
+| Disable Phone Call and SMS on MFA service settings | Required |
+| Enforce MFA on all accounts | Required |
+
 
 
 ## Inactive users in SharePoint Online
