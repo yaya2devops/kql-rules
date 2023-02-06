@@ -80,3 +80,51 @@ allUsers
 | where isnotnull(mfaActivationTime) 
 | project userPrincipalName, mfaActivationTime;
 ```
+
+
+
+### Sentinel
+
+``` KQL
+// Rule 1: Only invited users should be automatically admitted
+let invitedUsers = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "AccessControl" 
+   and AlertName == "UserInvitationAccepted" 
+| project UserId, TimeGenerated;
+
+// Rule 2: Block legacy authentication through Conditional Access
+let legacyAuthEvents = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "AccessControl" 
+   and AlertName == "LegacyAuthDetected" 
+| project UserId, AppDisplayName, TimeGenerated;
+
+// Rule 3: Secure Score for Identity: 5. Enable User Risk in Conditional Access policy
+let userRiskEvents = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "IdentitySecurity" 
+   and AlertName == "UserRiskSignIn" 
+| project UserId, RiskScore, TimeGenerated;
+
+// Rule 4: Enable Sign-in Risk in Conditional Access policy
+let signInRiskEvents = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "IdentitySecurity" 
+   and AlertName == "SignInRiskDetected" 
+| project UserId, RiskScore, TimeGenerated;
+
+// Rule 5: Define and set Account Lockout policy on MFA
+let accountLockoutEvents = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "AccessControl" 
+   and AlertName == "AccountLockedOut" 
+| project UserId, TimeGenerated;
+
+// Rule 6: Disable Phone Call and SMS on MFA service settings
+let mfaServiceEvents = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "AccessControl" 
+   and AlertName == "MFAServiceSettingsChanged" 
+| project UserId, MFAMethod, TimeGenerated;
+
+// Rule 7: Enforce MFA on all accounts
+let allUsers = SecurityAlert
+| where ProviderName == "AzureActiveDirectory" and Category == "AccessControl" 
+   and AlertName == "MFAEnforced" 
+| project UserId, TimeGenerated;
+```
